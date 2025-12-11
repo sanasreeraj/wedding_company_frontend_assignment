@@ -1,15 +1,19 @@
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { ProgressSliderProps } from '@/types/quiz';
 
-interface ProgressSliderProps {
-  current: number;
-  total: number;
-}
-
+/**
+ * ProgressSlider Component
+ * Displays progress bars for each question in the quiz
+ */
 const ProgressSlider: FC<ProgressSliderProps> = ({ current, total }) => {
+  const progressBars = useMemo(() => {
+    return Array.from({ length: total }, (_, idx) => idx);
+  }, [total]);
+
   return (
     <div className="w-full flex gap-2 md:gap-4 mb-4 max-w-2xl mx-auto px-4 md:px-0">
-      {Array.from({ length: total }).map((_, idx) => (
+      {progressBars.map((idx) => (
         <div
           key={idx}
           className="flex-1 h-2 rounded-full bg-[#E3E3E3] relative overflow-hidden"

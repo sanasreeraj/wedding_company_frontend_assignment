@@ -1,21 +1,16 @@
-import { FC, useState } from 'react';
+import { FC, useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProgressSlider from '@/app/ProgressSlider';
 import QuestionCard from '@/app/QuestionCard';
 import Options from '@/app/Options';
 import Navigation from '@/app/Navigation';
 import GifBox from '@/app/GifBox';
+import { QuizPageProps } from '@/types/quiz';
 
-interface QuizPageProps {
-  questions: { id: number; text: string; options: string[]; correct: number }[];
-  currentQuestion: number;
-  selectedAnswers: number[];
-  onSelect: (index: number) => void;
-  onNext: () => void;
-  onPrev: () => void;
-  onSubmit: () => void;
-}
-
+/**
+ * QuizPage Component
+ * Main quiz interface component that displays questions, options, and navigation
+ */
 const QuizPage: FC<QuizPageProps> = ({
   questions,
   currentQuestion,
@@ -26,7 +21,11 @@ const QuizPage: FC<QuizPageProps> = ({
   onSubmit,
 }) => {
   const [direction, setDirection] = useState(0);
-  const currentQ = questions[currentQuestion];
+  
+  const currentQ = useMemo(() => {
+    return questions[currentQuestion];
+  }, [questions, currentQuestion]);
+  
   const isFirst = currentQuestion === 0;
   const isLast = currentQuestion === questions.length - 1;
   const hasSelection = selectedAnswers[currentQuestion] !== undefined;
@@ -48,15 +47,15 @@ const QuizPage: FC<QuizPageProps> = ({
     })
   };
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setDirection(1);
     onNext();
-  };
+  }, [onNext]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     setDirection(-1);
     onPrev();
-  };
+  }, [onPrev]);
 
   return (
     <div className="relative h-screen overflow-hidden flex items-center justify-center p-2 md:p-4">
@@ -131,14 +130,18 @@ const QuizPage: FC<QuizPageProps> = ({
               className="w-full max-w-2xl mx-auto"
             >
               {/* Question Card */}
-              <QuestionCard question={currentQ.text} questionNumber={currentQ.id} />
+              {currentQ && (
+                <QuestionCard question={currentQ.text} questionNumber={currentQ.id} />
+              )}
 
               {/* Options */}
-              <Options
-                options={currentQ.options}
-                selected={selectedAnswers[currentQuestion]}
-                onSelect={onSelect}
-              />
+              {currentQ && (
+                <Options
+                  options={currentQ.options}
+                  selected={selectedAnswers[currentQuestion]}
+                  onSelect={onSelect}
+                />
+              )}
             </motion.div>
           </AnimatePresence>
 

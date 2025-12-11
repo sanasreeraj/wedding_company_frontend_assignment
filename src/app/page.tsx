@@ -1,79 +1,59 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useMemo, useCallback } from 'react';
 import QuizPage from '@/app/QuizPage';
 import ScorePage from '@/app/ScorePage';
+import { QUIZ_QUESTIONS, calculateScore } from '@/constants/questions';
 
-const questions = [
-  {
-    id: 1,
-    text: "What sound does a cat make?",
-    options: ["Bhau-Bhau", "Meow-Meow", "Oink-Oink"],
-    correct: 1, // 0-based index
-  },
-  {
-    id: 2,
-    text: "What would you probably find in your fridge?",
-    options: ["Shoes", "Ice Cream", "Books"],
-    correct: 1,
-  },
-  {
-    id: 3,
-    text: "What color are bananas?",
-    options: ["Blue", "Yellow", "Red"],
-    correct: 1,
-  },
-  {
-    id: 4,
-    text: "How many stars are in the sky?",
-    options: ["Two", "Infinite", "One Hundred"],
-    correct: 1,
-  },
-];
-
+/**
+ * Main page component that manages quiz state and navigation
+ */
 export default function Home() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const score = useMemo(() => {
-    return selectedAnswers.reduce((acc, idx, i) => acc + (idx === questions[i].correct ? 25 : 0), 0);
+    return calculateScore(selectedAnswers, QUIZ_QUESTIONS);
   }, [selectedAnswers]);
 
-  const handleSelect = (optionIndex: number) => {
-    const newSelections = [...selectedAnswers];
-    newSelections[currentQuestion] = optionIndex;
-    setSelectedAnswers(newSelections);
-  };
+  const handleSelect = useCallback((optionIndex: number) => {
+    setSelectedAnswers((prev) => {
+      const newSelections = [...prev];
+      newSelections[currentQuestion] = optionIndex;
+      return newSelections;
+    });
+  }, [currentQuestion]);
 
-  const handleNext = () => {
-    if (currentQuestion < questions.length - 1) {
+  const handleNext = useCallback(() => {
+    if (currentQuestion < QUIZ_QUESTIONS.length - 1) {
       setCurrentQuestion((prev) => prev + 1);
     }
-  };
+  }, [currentQuestion]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (currentQuestion > 0) {
       setCurrentQuestion((prev) => prev - 1);
     }
-  };
+  }, [currentQuestion]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     setIsSubmitted(true);
-  };
+  }, []);
+
+  const handleRestart = useCallback(() => {
+    setCurrentQuestion(0);
+    setSelectedAnswers([]);
+    setIsSubmitted(false);
+  }, []);
 
   if (isSubmitted) {
-    return <ScorePage score={score} onRestart={() => {
-      setCurrentQuestion(0);
-      setSelectedAnswers([]);
-      setIsSubmitted(false);
-    }} />;
+    return <ScorePage score={score} onRestart={handleRestart} />;
   }
 
   return (
     <QuizPage
-      questions={questions}
+      questions={QUIZ_QUESTIONS}
       currentQuestion={currentQuestion}
       selectedAnswers={selectedAnswers}
       onSelect={handleSelect}

@@ -1,26 +1,33 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ScorePageProps } from '@/types/quiz';
 
-interface ScorePageProps {
-  score: number;
-  onRestart: () => void;
-}
-
+/**
+ * ScorePage Component
+ * Displays the final quiz score with animated counter and restart option
+ */
 const ScorePage: FC<ScorePageProps> = ({ score, onRestart }) => {
   const [displayedScore, setDisplayedScore] = useState(0);
   const [showRestart, setShowRestart] = useState(false);
 
   useEffect(() => {
+    if (score === 0) {
+      setShowRestart(true);
+      return;
+    }
+
     const timer = setInterval(() => {
       setDisplayedScore((prev) => {
         if (prev < score) {
-          return prev + Math.ceil((score - prev) / 10); // Smooth roll
+          const increment = Math.max(1, Math.ceil((score - prev) / 10));
+          return Math.min(prev + increment, score);
         }
         clearInterval(timer);
         setShowRestart(true);
         return score;
       });
     }, 50);
+    
     return () => clearInterval(timer);
   }, [score]);
 

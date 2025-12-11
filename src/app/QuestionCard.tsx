@@ -1,10 +1,5 @@
-import { motion } from 'framer-motion';
 import { FC } from 'react';
-
-interface QuestionCardProps {
-  question: string;
-  questionNumber: number;
-}
+import { QuestionCardProps } from '@/types/quiz';
 
 const QuestionCard: FC<QuestionCardProps> = ({ question, questionNumber }) => {
   return (

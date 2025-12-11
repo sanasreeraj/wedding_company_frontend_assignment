@@ -1,13 +1,11 @@
 import { FC } from 'react';
 import Image from 'next/image';
+import { NavigationProps } from '@/types/quiz';
 
-interface NavigationProps {
-  onPrev: () => void;
-  onNext: () => void;
-  disabledPrev: boolean;
-  disabledNext: boolean;
-}
-
+/**
+ * Navigation Component
+ * Provides previous and next navigation buttons for quiz questions
+ */
 const Navigation: FC<NavigationProps> = ({ onPrev, onNext, disabledPrev, disabledNext }) => {
   return (
     <div className="flex justify-end w-full max-w-2xl mx-auto mt-3 gap-2">
